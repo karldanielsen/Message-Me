@@ -3,9 +3,14 @@
 A Cloudformation template that automatically creates a lambda
 proxy API to send text messages.
 
-Once the template is deployed, check API gateway deployments for
-the endpoint URL. The http POST request body passed to the URL
-is texted to the provided phone number.
+Once the template is deployed, the API endpoint can be found in the
+AWS console or by running:
+
+        $ aws cloudformation describe-stacks --stack-name newMessageMeStack
+
+and finding the "outputs" section.
+Any http POST request body passed to this endpoint will be forwarded
+to the provided phone number.
 
 The form of the API endpoint is:
 https://{ID}.execute-api.us-east-1.amazonaws.com/{NAME}/message
@@ -36,6 +41,7 @@ _2. After packaging or retrieving a template, deploy it with:_
                         "originServers={* or URL}" \
                         "lambdaName={Name}"
 #
+
 NOTE: Be sure to select names that will not overlap with other AWS resources.
 
 NOTE: Be careful setting originServers to *, CORS exists for a reason.
