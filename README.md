@@ -6,7 +6,7 @@ proxy API to send text messages.
 Once the template is deployed, the API endpoint can be found in the
 AWS console or by running:
 
-        $ aws cloudformation describe-stacks --stack-name newMessageMeStack
+        $ aws cloudformation describe-stacks --stack-name {MessageMeStackName}
 
 and finding the "outputs" section.
 Any http POST request body passed to this endpoint will be forwarded
@@ -45,4 +45,3 @@ _2. After packaging or retrieving a template, deploy it with:_
 NOTE: Be sure to select names that will not overlap with other AWS resources.
 
 NOTE: Be careful setting originServers to *, CORS exists for a reason.
-
