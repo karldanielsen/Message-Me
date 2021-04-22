@@ -11,7 +11,7 @@ Parameters:
     Type: String
     Default: POST
   phoneNum:
-    Description: The phone number to forward messages to.
+    Description: The phone number to forward messages to, must include country code.
     Type: String
   apiGatewayName:
     Description: The name of the API AWS resource. Be careful to make sure no other API on the account has this name.
