@@ -13,7 +13,6 @@ https://{ID}.execute-api.us-east-1.amazonaws.com/{NAME}/message
 A quick deployment (once your CLI is setup) can be achieved in two
 steps:
 #
----
 _1a. If you want to edit the base template, pull this repo and run the following:_
 
         $ aws cloudformation package \
@@ -25,7 +24,6 @@ _1b. If you just want to deploy the existing template, retrieve a prebuilt templ
 
         $ wget https://message-me-template-bucket.s3.amazonaws.com/output.yml
 #
----
 _2. After packaging or retrieving a template, deploy it with:_
 
         $ aws cloudformation deploy \
@@ -38,7 +36,6 @@ _2. After packaging or retrieving a template, deploy it with:_
                         "originServers={* or URL}" \
                         "lambdaName={Name}"
 #
----
 NOTE: Be sure to select names that will not overlap with other AWS resources.
 
 NOTE: Be careful setting originServers to *, CORS exists for a reason.
