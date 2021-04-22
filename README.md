@@ -12,6 +12,8 @@ https://{ID}.execute-api.us-east-1.amazonaws.com/{NAME}/message
 
 A quick deployment (once your CLI is setup) can be achieved in two
 steps:
+
+
 ----
 ### _1a. If you want to edit the base template, pull this repo and run the following:_
 
