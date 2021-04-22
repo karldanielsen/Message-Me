@@ -1,0 +1,178 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Message Me template
+Parameters:
+  apiGatewayHTTPMethod:
+    Type: String
+    Default: POST
+  phoneNum:
+    Description: The phone number to forward messages to.
+    Type: String
+  apiGatewayName:
+    Description: The name of the API AWS resource. Be careful to make sure no other
+      API on the account has this name.
+    Type: String
+    Default: MessageMeApiGateway
+  snsName:
+    Description: The name of the SNS AWS resource. Be careful to make sure no other
+      SNS on the account has this name.
+    Type: String
+    Default: MessageMeSns
+  lambdaName:
+    Description: The name of the LAMBDA AWS resource. Be careful to make sure no other
+      LAMBDA on the account has this name.
+    Type: String
+    Default: MessageMeLambda
+  originServers:
+    Description: The urls CORS accepts as origins for API message requests. * is a
+      wildcard.
+    Type: String
+    Default: '*'
+Resources:
+  apiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: Api to trigger an SNS message through lambda.
+      EndpointConfiguration:
+        Types:
+        - REGIONAL
+      Name:
+        Ref: apiGatewayName
+  apiGatewayRootMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod:
+        Ref: apiGatewayHTTPMethod
+      Integration:
+        Type: MOCK
+      ResourceId:
+        Fn::GetAtt:
+        - apiGateway
+        - RootResourceId
+      RestApiId:
+        Ref: apiGateway
+  apiGatewayMessageMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod:
+        Ref: apiGatewayHTTPMethod
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Sub:
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn:
+              Fn::GetAtt:
+              - messageLambda
+              - Arn
+      ResourceId:
+        Ref: apiGatewayMessageResource
+      RestApiId:
+        Ref: apiGateway
+  apiGatewayMessageResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+        - apiGateway
+        - RootResourceId
+      PathPart: message
+      RestApiId:
+        Ref: apiGateway
+  apiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+    - apiGatewayMessageMethod
+    - apiGatewayRootMethod
+    Properties:
+      RestApiId:
+        Ref: apiGateway
+      StageName:
+        Ref: apiGatewayName
+  apiGatewayUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+        ApiId:
+          Ref: apiGateway
+        Stage:
+          Ref: apiGatewayName
+      Quota:
+        Limit: 20
+        Period: DAY
+      Throttle:
+        BurstLimit: 1
+        RateLimit: 1
+  messageLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Ref: lambdaName
+      CodeUri: s3://karl-resume-bucket/5d3352642fe8b4b9eab9abee24ef734a
+      Handler: message_lambda.lambda_handler
+      Runtime: python3.7
+      AutoPublishAlias: live
+      Role:
+        Fn::GetAtt:
+        - messageLambdaRole
+        - Arn
+      Environment:
+        Variables:
+          CORS_headers:
+            Ref: originServers
+          sns_arn:
+            Ref: messageSnsTopic
+      Timeout: 15
+  messageLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+      Policies:
+      - PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - sns:publish
+            Resource:
+              Ref: messageSnsTopic
+        PolicyName: messageLambdaRole
+  messageSnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: Message Me
+      Subscription:
+      - Endpoint:
+          Ref: phoneNum
+        Protocol: sms
+      TopicName:
+        Ref: snsName
+  lambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - messageLambda
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/*/*/message
+Outputs:
+  apiGatewayInvokeURL:
+    Description: URL to get info from DDB
+    Value:
+      Fn::Sub: https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/${apiGatewayName}/${apiGatewayName}
+    Export:
+      Name: messageAPIUrl
