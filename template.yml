@@ -78,21 +78,11 @@ Resources:
       - apiGatewayMessageMethod
       - apiGatewayRootMethod
     Properties:
+      StageDescription:
+        ThrottlingBurstLimit: 1
+        ThrottlingRateLimit: 1
       RestApiId: !Ref apiGateway
       StageName: !Ref apiGatewayName
-
-  apiGatewayUsagePlan:
-    Type: AWS::ApiGateway::UsagePlan
-    Properties:
-      ApiStages:
-        ApiId: !Ref apiGateway
-        Stage: !Ref apiGatewayName
-      Quota:
-        Limit: 20
-        Period: DAY
-      Throttle:
-        BurstLimit: 1
-        RateLimit: 1
     
 # Specify details about the message lambda function
   messageLambda:

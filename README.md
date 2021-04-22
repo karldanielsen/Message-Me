@@ -15,7 +15,7 @@ lines:
 
 $ aws cloudformation package \
   --template-file template.yml \
-  --s3-bucket coin-value-histories \
+  --s3-bucket {s3 Bucket Name} \
   --output-template-file output.yml
 
 $ aws cloudformation deploy \
