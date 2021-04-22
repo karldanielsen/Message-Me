@@ -14,19 +14,19 @@ A quick deployment (once your CLI is setup) can be achieved in two
 steps:
 
 
-----
-### _1a. If you want to edit the base template, pull this repo and run the following:_
+---#
+_1a. If you want to edit the base template, pull this repo and run the following:_
 
         $ aws cloudformation package \
           --template-file template.yml \
           --s3-bucket {s3 Bucket Name} \
           --output-template-file output.yml
           
-### _1b. If you just want to deploy the existing template, retrieve a prebuilt template with:_
+_1b. If you just want to deploy the existing template, retrieve a prebuilt template with:_
 
         $ wget https://message-me-template-bucket.s3.amazonaws.com/output.yml
-----
-### _2. After packaging or retrieving a template, deploy it with:_
+---#
+_2. After packaging or retrieving a template, deploy it with:_
 
         $ aws cloudformation deploy \
           --template-file output.yml \
@@ -37,7 +37,7 @@ steps:
                         "phoneNum={Num w/ country code}" \
                         "originServers={* or URL}" \
                         "lambdaName={Name}"
-----
+---#
 NOTE: Be sure to select names that will not overlap with other AWS resources.
 
 NOTE: Be careful setting originServers to *, CORS exists for a reason.
