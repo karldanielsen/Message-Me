@@ -144,6 +144,4 @@ Resources:
 Outputs:
   apiGatewayInvokeURL:
     Description: URL to get info from DDB
-    Value: !Sub https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/${apiGatewayName}/${apiGatewayName}
-    Export:
-      Name: "messageAPIUrl"
+    Value: !Sub https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/${apiGatewayName}/message
